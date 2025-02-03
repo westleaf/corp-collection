@@ -13,41 +13,36 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
 
 func main() {
 	var (
-		client           *kubernetes.Clientset
-		deploymentLabels map[string]string
-		err              error
-		expectedPods     int32
+		client *kubernetes.Clientset
+		err    error
 	)
 
-	ctx := context.Background()
-
-	if client, err = getClient(); err != nil {
+	if client, err = getClient(false); err != nil {
 		fmt.Printf("error: %s\n", err)
 		os.Exit(1)
 	}
-	if deploymentLabels, expectedPods, err = deploy(ctx, client); err != nil {
-		fmt.Printf("error: %s\n", err)
-		os.Exit(1)
-	}
-	if err = waitForPods(ctx, client, deploymentLabels, expectedPods); err != nil {
-		fmt.Printf("error: %s\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("deployed finished with labels: %v\n", deploymentLabels)
 }
 
-func getClient() (*kubernetes.Clientset, error) {
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
-	if err != nil {
-		return nil, err
+func getClient(inCluster bool) (*kubernetes.Clientset, error) {
+	var (
+		err    error
+		config *rest.Config
+	)
+	if inCluster {
+		rest.InClusterConfig()
+	} else {
+		// use the current context in kubeconfig
+		config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// create the clientset
