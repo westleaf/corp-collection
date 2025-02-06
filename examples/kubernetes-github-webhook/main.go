@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/google/go-github/v69/github"
+	"golang.org/x/oauth2"
 
 	v1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -20,14 +24,24 @@ import (
 
 func main() {
 	var (
-		client *kubernetes.Clientset
-		err    error
+		err error
 	)
 
-	if client, err = getClient(false); err != nil {
+	ctx := context.Background()
+	s := server{
+		webhookSecretKey: os.Getenv("WEBHOOK_SECRET"),
+	}
+	if s.client, err = getClient(false); err != nil {
 		fmt.Printf("error: %s\n", err)
 		os.Exit(1)
 	}
+
+	if s.githubClient = getGithubClient(ctx, os.Getenv("GITHUB_TOKEN")); err != nil {
+
+	}
+
+	http.HandleFunc("/webhook", s.webhook)
+	http.ListenAndServe(":8080", nil)
 }
 
 func getClient(inCluster bool) (*kubernetes.Clientset, error) {
@@ -36,10 +50,13 @@ func getClient(inCluster bool) (*kubernetes.Clientset, error) {
 		config *rest.Config
 	)
 	if inCluster {
-		rest.InClusterConfig()
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		// use the current context in kubeconfig
-		config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
+		config, err = clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +71,16 @@ func getClient(inCluster bool) (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
-func deploy(ctx context.Context, client *kubernetes.Clientset) (map[string]string, int32, error) {
+func getGithubClient(ctx context.Context, accessToken string) *github.Client {
+	if accessToken == "" {
+		return github.NewClient(nil)
+	}
+	tc := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}))
+
+	return github.NewClient(tc)
+}
+
+func deploy(ctx context.Context, client *kubernetes.Clientset, appFile []byte) (map[string]string, int32, error) {
 	var deployment *v1.Deployment
 
 	appFile, err := os.ReadFile("deployment.yaml")
