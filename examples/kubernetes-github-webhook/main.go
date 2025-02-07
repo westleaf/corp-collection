@@ -31,7 +31,7 @@ func main() {
 	s := server{
 		webhookSecretKey: os.Getenv("WEBHOOK_SECRET"),
 	}
-	if s.client, err = getClient(false); err != nil {
+	if s.client, err = getClient(true); err != nil {
 		fmt.Printf("error: %s\n", err)
 		os.Exit(1)
 	}
@@ -82,11 +82,6 @@ func getGithubClient(ctx context.Context, accessToken string) *github.Client {
 
 func deploy(ctx context.Context, client *kubernetes.Clientset, appFile []byte) (map[string]string, int32, error) {
 	var deployment *v1.Deployment
-
-	appFile, err := os.ReadFile("deployment.yaml")
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to read deployment file: %w", err)
-	}
 
 	obj, groupVersionKind, err := scheme.Codecs.UniversalDeserializer().Decode(appFile, nil, nil)
 	if err != nil {
