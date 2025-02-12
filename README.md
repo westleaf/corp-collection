@@ -1,2 +1,2 @@
-# westycorp-collection
-Where WestyCorp keeps its collections of neat files
+# corp-collection
+Where corp keeps its collections of neat files
