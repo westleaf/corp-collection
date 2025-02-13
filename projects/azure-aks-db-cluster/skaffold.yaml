@@ -1,0 +1,33 @@
+apiVersion: skaffold/v4beta12
+kind: Config
+build:
+  artifacts:
+    - image: corp-web
+      context: corp-web
+      requires:
+        - image: base
+          alias: BASE
+    - image: corp-app
+      context: corp-app
+      requires:
+        - image: base
+          alias: BASE
+    - image: base
+      context: base
+manifests:
+  rawYaml:
+    - corp-web/kubernetes/*
+    - corp-app/kubernetes/*
+portForward:
+  - resourceType: deployment
+    resourceName: corp-web
+    port: 8080
+    localPort: 9000
+  - resourceType: deployment
+    resourceName: corp-app
+    port: http
+    localPort: 9001
+profiles:
+  - name: gcb
+    build:
+      googleCloudBuild: {}

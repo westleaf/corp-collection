@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: corp-web
+  labels:
+    app: corp-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: corp-web
+  template:
+    metadata:
+      labels:
+        app: corp-web
+    spec:
+      containers:
+        - name: corp-web
+          image: corp-web
+          ports:
+            - containerPort: 8080
