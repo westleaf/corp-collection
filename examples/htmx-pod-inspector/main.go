@@ -6,15 +6,15 @@ import (
 	"text/template"
 )
 
-type Todo struct {
-	Id      int
-	Message string
+type Pods struct {
+	Id  int
+	Pod string
 }
 
 func main() {
-	data := map[string][]Todo{
+	data := map[string][]Pods{
 		"Todos": {
-			Todo{Id: 1, Message: "Milk"},
+			Pods{Id: 1, Pod: "Milk"},
 		},
 	}
 
@@ -24,16 +24,16 @@ func main() {
 	}
 
 	addTodoHandler := func(w http.ResponseWriter, r *http.Request) {
-		message := r.PostFormValue("message")
+		pods := r.PostFormValue("pods")
 		templ := template.Must(template.ParseFiles("index.html"))
-		todo := Todo{Id: len(data["Todos"]) + 1, Message: message}
-		data["Todo"] = append(data["Todo"], todo)
+		pod := Pods{Id: len(data["Pods"]) + 1, Pod: pods}
+		data["Pods"] = append(data["Pods"], pod)
 
-		templ.ExecuteTemplate(w, "todo-list-element", todo)
+		templ.ExecuteTemplate(w, "pod-list-element", pod)
 	}
 
 	http.HandleFunc("/", handler)
-	http.HandleFunc("/add-todo", addTodoHandler)
+	http.HandleFunc("/getpods", addTodoHandler)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
