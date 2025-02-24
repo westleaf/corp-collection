@@ -1,0 +1,27 @@
+# permissions for end users to edit configurations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: kubernetes-corp-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: api-configuration-editor-role
+rules:
+- apiGroups:
+  - api.core.corp-corp.io
+  resources:
+  - configurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - api.core.corp-corp.io
+  resources:
+  - configurations/status
+  verbs:
+  - get

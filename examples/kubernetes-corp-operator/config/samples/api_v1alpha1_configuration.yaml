@@ -1,0 +1,8 @@
+apiVersion: api.core.corp-corp.io/v1alpha1
+kind: Configuration
+metadata:
+  labels:
+  name: configuration-sample
+spec:
+  type: "foo"
+  setting: "default"
