@@ -34,3 +34,7 @@ spec:
         ports:
         - containerPort: 50051
           name: http
+        resources:
+          limits:
+            cpu: 2500
+            memory: 250

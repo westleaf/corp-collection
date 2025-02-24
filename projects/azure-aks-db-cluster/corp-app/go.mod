@@ -1,3 +1,3 @@
 module github.com/GoogleContainerTools/skaffold/examples/microservices/corp-app
 
-go 1.18
+go 1.23

@@ -1,3 +1,3 @@
-module github.com/GoogleContainerTools/skaffold/examples/microservices/corp-web
+module github.com/westleaf/corp-collection/projects/azure-aks-db-cluster/corp-web
 
-go 1.18
+go 1.23

@@ -18,6 +18,8 @@ manifests:
   rawYaml:
     - corp-web/kubernetes/*
     - corp-app/kubernetes/*
+    - corp-db/kubernetes/*
+    - corp-fuzzer/kubernetes/*
 portForward:
   - resourceType: deployment
     resourceName: corp-web
@@ -27,7 +29,11 @@ portForward:
     resourceName: corp-app
     port: http
     localPort: 9001
+  - resourceType: statefulset
+    resourceName: corp-db
+    port: dbport
+    localPort: 9999
 profiles:
-  - name: gcb
+  - name: corp-dev
     build:
       googleCloudBuild: {}
